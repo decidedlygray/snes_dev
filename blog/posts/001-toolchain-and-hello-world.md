@@ -362,6 +362,5 @@ EverDrive's SD card.
   its own program, which deserves a post of its own.
 - A real art pipeline (PNG → tiles).
 
-The full source is in the project repository.
-
-> **TODO before publishing:** link to the repository.
+The full source is on GitHub:
+[decidedlygray/snes_dev](https://github.com/decidedlygray/snes_dev).
