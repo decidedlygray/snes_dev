@@ -22,6 +22,13 @@ Raw material for future posts: snags, discoveries, ideas. Newest at the bottom.
 - Blink "PRESS START" by toggling its BG layer, with no VRAM writes. Nice
   example of thinking in PPU terms rather than "redraw the text".
 
+## 2026-10-23: releases
+
+- GitHub Actions builds and tests every push on Ubuntu 24.04 (same setup
+  script), and pushing a `v*` tag publishes a Release with the ROM and its
+  SHA-256. Because builds are reproducible, readers can rebuild a tag and
+  check that they get the exact ROM I published.
+
 ## Ideas for later posts
 
 - First boot on real hardware (EverDrive): photos, any differences from the emulator.

@@ -1,0 +1,80 @@
+# Build and test the ROM on every push to main and every pull request, on the
+# same Ubuntu 24.04 setup as tools/setup-ubuntu.sh.
+#
+# Pushing a version tag also publishes a GitHub Release with the ROM:
+#   git tag v0.1.0 && git push origin v0.1.0
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # all tags, so `make dist` can name the ROM with git describe
+
+      - name: Install toolchain and Mesen
+        run: |
+          ./tools/setup-ubuntu.sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Build
+        run: make
+
+      - name: Test in headless Mesen
+        run: make test
+
+      - name: Package
+        run: |
+          make dist
+          cat build/dist/*.sha256
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rom
+          path: build/dist/
+
+      - uses: actions/upload-artifact@v7
+        if: always()  # especially useful when the test fails
+        with:
+          name: screenshots
+          path: build/screenshots/
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: rom
+          path: dist
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          notes="$(cat <<'EOF'
+          Download the `.sfc` file below and open it in an SNES emulator (Mesen, bsnes, Snes9x, ...) or copy it to a flash cart such as an EverDrive.
+
+          The build is reproducible: check out this tag, run `make`, and `build/hello.sfc` will match the SHA-256 in the `.sha256` file.
+          EOF
+          )"
+          gh release create "$TAG" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "$TAG" \
+            --notes "$notes" \
+            --generate-notes

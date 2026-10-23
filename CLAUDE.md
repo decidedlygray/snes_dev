@@ -39,6 +39,7 @@ make               # build build/hello.sfc (+ .dbg symbols, .map)
 make test          # headless Mesen run of tests/smoke.lua; exit 0 = pass
 make run           # open in Mesen (interactive; the owner does this, not you)
 make docker-test   # same as `make test` inside the Ubuntu 24.04 container
+make dist          # build/dist/hello-<git describe>.sfc + .sha256
 make clean
 ```
 
@@ -119,6 +120,17 @@ likely next step; see RESEARCH.md.
 - Mesen test runner details (switches, Lua API names, why the controller
   must be plugged in on the command line) are in RESEARCH.md → "Mesen".
 
-## Git
+## Git, CI and releases
 
-The repository was initialized for the owner. Commit only when asked.
+- Remote: `git@github.com:decidedlygray/snes_dev.git` (public). The repo's
+  `core.sshCommand` already points at the right SSH key, so plain
+  `git push` works. Commit and push only when asked.
+- `.github/workflows/build.yml` runs `make`, `make test` and `make dist` on
+  Ubuntu 24.04 for every push to `main` and every PR, and uploads the ROM
+  and screenshots as artifacts. Check a run's status with
+  `curl -s https://api.github.com/repos/decidedlygray/snes_dev/actions/runs?per_page=1`
+  (`gh` isn't installed on the owner's Mac).
+- **Releases** are created by pushing a `vMAJOR.MINOR.PATCH` tag. The
+  workflow's `release` job publishes the ROM and its SHA-256 to GitHub
+  Releases. Releases are public, so only tag when the owner asks, and only
+  on a commit whose CI run passed.
