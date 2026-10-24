@@ -134,6 +134,13 @@ milestones.**
 - Linux build: one self-contained `Mesen` binary that needs the .NET 8
   runtime (`dotnet-runtime-8.0`) and SDL2. Native libraries are extracted
   into the home folder at startup.
+- **x86_64 Linux build crashes at startup** with
+  `terminate called after throwing an instance of 'std::bad_cast'` (exit
+  134) on Ubuntu 24.04. Seen on the GitHub Actions `ubuntu-24.04` runner and
+  in an amd64 Docker container. The arm64 build is unaffected.
+  `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` (no ICU) fixes it, while setting
+  LANG/LC_ALL to C.UTF-8 doesn't. The `Mesen` launcher written by
+  `tools/setup-ubuntu.sh` sets it. Found 2026-10-23; not yet reported upstream.
 
 Source files read: `Core/Debugger/LuaApi.cpp`, `Core/Debugger/ScriptingContext.cpp`,
 `Core/Shared/BaseControlManager.cpp`, `UI/Program.cs`, `UI/Utilities/CommandLineHelper.cs`,

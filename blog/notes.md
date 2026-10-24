@@ -28,6 +28,10 @@ Raw material for future posts: snags, discoveries, ideas. Newest at the bottom.
   script), and pushing a `v*` tag publishes a Release with the ROM and its
   SHA-256. Because builds are reproducible, readers can rebuild a tag and
   check that they get the exact ROM I published.
+- First CI run failed: the x86_64 Linux Mesen aborts with `std::bad_cast`
+  at startup (arm64, which I'd tested on, was fine). I reproduced it in an
+  amd64 Docker container on the Mac; `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1`
+  fixes it. Lesson: test on the architecture CI (and most readers) actually use.
 
 ## Ideas for later posts
 

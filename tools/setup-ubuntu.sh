@@ -35,7 +35,18 @@ curl -fsSL -o "$tmp/mesen.zip" \
 mkdir -p "$PREFIX/opt/mesen" "$PREFIX/bin"
 unzip -o -q "$tmp/mesen.zip" -d "$PREFIX/opt/mesen"
 chmod +x "$PREFIX/opt/mesen/Mesen"
-ln -sf "$PREFIX/opt/mesen/Mesen" "$PREFIX/bin/Mesen"
+
+# Launcher. The x86_64 Linux build of Mesen 2.1.1 aborts at startup with
+# "std::bad_cast" when .NET loads ICU for culture support (the arm64 build
+# is fine), so turn that off; it doesn't affect emulation. Remove any old
+# launcher first: if it's a symlink, writing to it would overwrite Mesen.
+rm -f "$PREFIX/bin/Mesen"
+cat > "$PREFIX/bin/Mesen" <<EOF
+#!/bin/sh
+export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+exec "$PREFIX/opt/mesen/Mesen" "\$@"
+EOF
+chmod +x "$PREFIX/bin/Mesen"
 
 # A settings.json next to the executable puts Mesen in portable mode: its
 # config, saves and debugger files stay in $PREFIX/opt/mesen, and it skips
